@@ -8,7 +8,13 @@ public class CarCameraController : MonoBehaviour
     public int camIndex = 0;
 
     private void Start() {
-        cameras[camIndex].enabled = true;
+
+        //3 farklı kamera açısı 1-2-3 tuşları ile değiştirilebiliyor
+        //başlangıçta hepsinin açık olması fps'i düşürüyor
+
+        cameras[0].enabled = true;
+        cameras[1].enabled = false;
+        cameras[2].enabled = false;
     }
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Alpha1)){
@@ -23,6 +29,8 @@ public class CarCameraController : MonoBehaviour
     }
 
     private void SwapCamera(int index){
+
+        //kamera değişiminde diğer kamera kapanıyor
         cameras[camIndex].enabled = false;
         cameras[index].enabled = true;
         camIndex = index;

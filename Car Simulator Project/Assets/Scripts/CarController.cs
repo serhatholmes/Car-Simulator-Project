@@ -6,6 +6,7 @@ using TMPro;
 
 public class CarController : MonoBehaviour
 {
+    public bool isMoving = false;
     [SerializeField] float accelPower;
     float startTime, endTime;
     float lapTime;
@@ -17,16 +18,25 @@ public class CarController : MonoBehaviour
     [SerializeField] float turnPower;
     [SerializeField] RawImage steeringWheel;
 
+    [SerializeField] Transform frontLeftWheel;
+    [SerializeField] Transform frontRightWheel;
+
     private float steerInput;
 
-    private Rigidbody rb;
+    public Rigidbody rb;
+
+    public GearTransmission gearTransmission;
 
     [SerializeField] Slider Fuel;
     [SerializeField] TMP_Text fuelPercent;
 
+    public bool isGoingBack = false;
+
 
     private void Start() {
+        
         rb = GetComponent<Rigidbody>();
+
     }
     private void Update() {
 
@@ -39,19 +49,34 @@ public class CarController : MonoBehaviour
 
         if(Fuel.value > 0){
 
-            if (Input.GetKey(KeyCode.W)){
-                rb.AddForce(transform.forward * accelPower, ForceMode.Force);
-                Fuel.value -= 0.02f * Time.deltaTime;
-                fuelPercent.text = "Fuel: % " + Mathf.RoundToInt((Fuel.value * 100)).ToString();
-            }
-            if (Input.GetKey(KeyCode.S)){
-                rb.AddForce(transform.forward * -accelPower, ForceMode.Force);
-                Fuel.value -= 0.02f * Time.deltaTime;
-                fuelPercent.text = "Fuel: % " +  Mathf.RoundToInt((Fuel.value * 100)).ToString();
-            }
-        }
+            // eğer yakıt varsa ileri ve geri fonksiyonları aktif oluyor
 
-        
+                if(gearTransmission.isGoingForward == true){
+
+                    gearTransmission.isGoingBackward = false;
+
+                    if (Input.GetKey(KeyCode.W)){
+                    rb.AddForce(transform.forward * accelPower, ForceMode.Force);
+                    Fuel.value -= 0.02f * Time.deltaTime; // yakıt zamana bağlı olarak azalmakta
+                    fuelPercent.text = "Fuel: % " + Mathf.RoundToInt((Fuel.value * 100)).ToString();
+                    isGoingBack = false; // geri ışığın yanmaması için
+
+                }
+            }
+
+                if(gearTransmission.isGoingBackward == true){
+
+                    gearTransmission.isGoingForward = false;
+
+                    if (Input.GetKey(KeyCode.S)){
+                    rb.AddForce(transform.forward * -accelPower, ForceMode.Force);
+                    Fuel.value -= 0.02f * Time.deltaTime;
+                    fuelPercent.text = "Fuel: % " +  Mathf.RoundToInt((Fuel.value * 100)).ToString();
+                    isGoingBack = true;
+                }else{
+                    isGoingBack = false; // geri ışığı tuştan elini kaldırınca yanmaması için
+                }
+        }
 
         float turnAdjuster = rb.velocity.magnitude / 16f;
         turnAdjuster = Mathf.Clamp01(turnAdjuster);
@@ -71,10 +96,16 @@ public class CarController : MonoBehaviour
         else
             transform.localEulerAngles -= Vector3.up * steerInput * turnPower/1.5f * turnAdjuster;
             
-        steeringWheel.rectTransform.localEulerAngles = new Vector3(0, 0, -steerInput * 60f);
+        steeringWheel.rectTransform.localEulerAngles = new Vector3(0, 0, -steerInput * 60f); // ekrandaki direksiyonun dönüşüne yansıtmak için
+        frontLeftWheel.localEulerAngles  = new Vector3(0, steerInput * 45f, 0); // dönüşü ön teker objelerine yansıtmak için
+        frontRightWheel.localEulerAngles = new Vector3(0, steerInput * 45f, 0);
     }
+}
 
     private void OnTriggerEnter(Collider other) {
+
+        // aracın pistte attığı tam türün süresini öğrenmek için
+
         if (other.CompareTag("Finish Line")){
             if (!lapStarted){
                 startTime = Time.time;

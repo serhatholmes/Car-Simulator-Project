@@ -16,9 +16,13 @@ public class CarFeatures : MonoBehaviour
     [SerializeField] Light backLightL;
     [SerializeField] Light backLightR;
 
+    public bool signallingLeft = false, signallingRight = false;
+
     public bool carMoving = false;
 
     public bool blink = false;
+
+    public CarController carController;
 
 
     private void Start() {
@@ -28,8 +32,10 @@ public class CarFeatures : MonoBehaviour
         spotLightL.enabled = false;
         spotLightR.enabled = false;
 
-        signalLightL.enabled = false;
-        signalLightR.enabled = false;
+        signalLightL.enabled = true;
+        signalLightR.enabled = true;
+        signalLightL.intensity = 0;
+        signalLightR.intensity = 0;
 
         backLightL.enabled = false;
         backLightR.enabled = false;
@@ -40,12 +46,6 @@ public class CarFeatures : MonoBehaviour
 
     private void Update() {
 
-        if(carMoving == true){
-
-            carSound.clip = engineSound;
-            carSound.loop = true;
-            carSound.Play();
-        }
         
         if(Input.GetKeyDown(KeyCode.H)){
 
@@ -53,6 +53,8 @@ public class CarFeatures : MonoBehaviour
         }
 
         if(Input.GetKeyDown(KeyCode.L)){
+
+            // farların açılıp kapanması için
 
             if(spotLightL.enabled == false && spotLightR.enabled == false){
                 spotLightL.enabled = true;
@@ -63,49 +65,33 @@ public class CarFeatures : MonoBehaviour
             }
             
         }
+
+        if (signallingLeft){
+            signalLightL.intensity = Mathf.RoundToInt(Mathf.PingPong(Time.time*2f, 1f));
+        }
+        if (signallingRight){
+            signalLightR.intensity = Mathf.RoundToInt(Mathf.PingPong(Time.time*2f, 1f));
+        }
+
+        // geri ışıkları
+        if(carController.isGoingBack){
+            backLightL.enabled = true;
+            backLightR.enabled = true;
+        }else{
+            backLightL.enabled = false;
+            backLightR.enabled = false;
+        }
     }
 
+    // sinyal ışıkları
     public void signalLeft(){
-        if(!blink){
-            blink = true;
-            StartCoroutine(BlinkLightL());
-        }
-            
-        else{
-            blink = false;
-            signalLightL.enabled = false;
-        }
-            
+        signallingLeft = !signallingLeft;
+        signalLightL.intensity = 0;
     }
+
     public void signalRight(){
-        if(!blink){
-            blink = true;
-            StartCoroutine(BlinkLightR());
-        }
-            
-        else{
-            blink = false;
-            signalLightR.enabled = false;
-        }
-    }
-
-    private IEnumerator BlinkLightL(){
-
-        while(blink){
-            signalLightL.enabled = true;
-            yield return new WaitForSeconds(0.5f);
-            signalLightL.enabled = false;
-        }
-        
-    }
-
-    private IEnumerator BlinkLightR(){
-
-        while(blink){
-            signalLightR.enabled = true;
-            yield return new WaitForSeconds(0.5f);
-            signalLightR.enabled = false;
-        }
+        signallingRight = !signallingRight;
+        signalLightR.intensity = 0;
     }
 
 }
