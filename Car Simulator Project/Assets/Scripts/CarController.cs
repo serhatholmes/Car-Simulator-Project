@@ -118,5 +118,10 @@ public class CarController : MonoBehaviour
                 Debug.Log(lapTime);
             }
         }
+
+        if(other.CompareTag("Gas Station")){
+
+            Fuel.value = 1f;
+        }
     }
 }
