@@ -10,6 +10,10 @@ public class UIController : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI velocityText;
 
+    private void Start() {
+        
+    }
+
     private void Update() {
         // hız göstergesi 
         velocityText.text = "Hız: " + Mathf.RoundToInt(carRb.velocity.magnitude) + " km/s";

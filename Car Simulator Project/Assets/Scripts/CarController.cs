@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
 public class CarController : MonoBehaviour
 {
+
+    //PhotonView viewP;
     public bool isMoving = false;
     [SerializeField] float accelPower;
     float startTime, endTime;
@@ -32,73 +35,79 @@ public class CarController : MonoBehaviour
 
     public bool isGoingBack = false;
 
+    PhotonView viewP;
+
 
     private void Start() {
         
         rb = GetComponent<Rigidbody>();
+        viewP = GetComponent<PhotonView>();
 
     }
     private void Update() {
 
-        float forwardScaler = Vector3.Dot(rb.velocity, transform.forward);
-        forwardVelocity = transform.forward * forwardScaler;
-        driftingMagnitude = Vector3.Dot(rb.velocity, transform.right);
-        rightVelocity = transform.right * driftingMagnitude;
+        if(viewP.IsMine){
 
-        rb.velocity = forwardVelocity + rightVelocity * tractionMultiplier + new Vector3(0, rb.velocity.y, 0);
+            float forwardScaler = Vector3.Dot(rb.velocity, transform.forward);
+            forwardVelocity = transform.forward * forwardScaler;
+            driftingMagnitude = Vector3.Dot(rb.velocity, transform.right);
+            rightVelocity = transform.right * driftingMagnitude;
 
-        if(Fuel.value > 0){
+            rb.velocity = forwardVelocity + rightVelocity * tractionMultiplier + new Vector3(0, rb.velocity.y, 0);
 
-            // eğer yakıt varsa ileri ve geri fonksiyonları aktif oluyor
+            if(Fuel.value > 0){
 
-                if(gearTransmission.isGoingForward == true){
+                // eğer yakıt varsa ileri ve geri fonksiyonları aktif oluyor
 
-                    gearTransmission.isGoingBackward = false;
+                    if(gearTransmission.isGoingForward == true){
 
-                    if (Input.GetKey(KeyCode.W)){
-                    rb.AddForce(transform.forward * accelPower, ForceMode.Force);
-                    Fuel.value -= 0.02f * Time.deltaTime; // yakıt zamana bağlı olarak azalmakta
-                    fuelPercent.text = "Fuel: % " + Mathf.RoundToInt((Fuel.value * 100)).ToString();
-                    isGoingBack = false; // geri ışığın yanmaması için
+                        gearTransmission.isGoingBackward = false;
 
+                        if (Input.GetKey(KeyCode.W)){
+                        rb.AddForce(transform.forward * accelPower, ForceMode.Force);
+                        Fuel.value -= 0.02f * Time.deltaTime; // yakıt zamana bağlı olarak azalmakta
+                        fuelPercent.text = "Fuel: % " + Mathf.RoundToInt((Fuel.value * 100)).ToString();
+                        isGoingBack = false; // geri ışığın yanmaması için
+
+                    }
                 }
+
+                    if(gearTransmission.isGoingBackward == true){
+
+                        gearTransmission.isGoingForward = false;
+
+                        if (Input.GetKey(KeyCode.S)){
+                        rb.AddForce(transform.forward * -accelPower, ForceMode.Force);
+                        Fuel.value -= 0.02f * Time.deltaTime;
+                        fuelPercent.text = "Fuel: % " +  Mathf.RoundToInt((Fuel.value * 100)).ToString();
+                        isGoingBack = true;
+                    }else{
+                        isGoingBack = false; // geri ışığı tuştan elini kaldırınca yanmaması için
+                    }
             }
 
-                if(gearTransmission.isGoingBackward == true){
+            float turnAdjuster = rb.velocity.magnitude / 16f;
+            turnAdjuster = Mathf.Clamp01(turnAdjuster);
 
-                    gearTransmission.isGoingForward = false;
+            if (Input.GetKey(KeyCode.A)){
+                steerInput = Mathf.Lerp(steerInput, -1f, Time.deltaTime * 4f);
+            }
+            else if (Input.GetKey(KeyCode.D)){
+                steerInput = Mathf.Lerp(steerInput, 1f, Time.deltaTime * 4f);
+            }
+            else{
+                steerInput = Mathf.Lerp(steerInput, 0f, Time.deltaTime * 4f);
+            }
 
-                    if (Input.GetKey(KeyCode.S)){
-                    rb.AddForce(transform.forward * -accelPower, ForceMode.Force);
-                    Fuel.value -= 0.02f * Time.deltaTime;
-                    fuelPercent.text = "Fuel: % " +  Mathf.RoundToInt((Fuel.value * 100)).ToString();
-                    isGoingBack = true;
-                }else{
-                    isGoingBack = false; // geri ışığı tuştan elini kaldırınca yanmaması için
-                }
+            if (forwardScaler >= 0)
+                transform.localEulerAngles += Vector3.up * steerInput * turnPower/1.5f * turnAdjuster;
+            else
+                transform.localEulerAngles -= Vector3.up * steerInput * turnPower/1.5f * turnAdjuster;
+                
+            steeringWheel.rectTransform.localEulerAngles = new Vector3(0, 0, -steerInput * 60f); // ekrandaki direksiyonun dönüşüne yansıtmak için
+            frontLeftWheel.localEulerAngles  = new Vector3(0, steerInput * 45f, 0); // dönüşü ön teker objelerine yansıtmak için
+            frontRightWheel.localEulerAngles = new Vector3(0, steerInput * 45f, 0);
         }
-
-        float turnAdjuster = rb.velocity.magnitude / 16f;
-        turnAdjuster = Mathf.Clamp01(turnAdjuster);
-
-        if (Input.GetKey(KeyCode.A)){
-            steerInput = Mathf.Lerp(steerInput, -1f, Time.deltaTime * 4f);
-        }
-        else if (Input.GetKey(KeyCode.D)){
-            steerInput = Mathf.Lerp(steerInput, 1f, Time.deltaTime * 4f);
-        }
-        else{
-            steerInput = Mathf.Lerp(steerInput, 0f, Time.deltaTime * 4f);
-        }
-
-        if (forwardScaler >= 0)
-            transform.localEulerAngles += Vector3.up * steerInput * turnPower/1.5f * turnAdjuster;
-        else
-            transform.localEulerAngles -= Vector3.up * steerInput * turnPower/1.5f * turnAdjuster;
-            
-        steeringWheel.rectTransform.localEulerAngles = new Vector3(0, 0, -steerInput * 60f); // ekrandaki direksiyonun dönüşüne yansıtmak için
-        frontLeftWheel.localEulerAngles  = new Vector3(0, steerInput * 45f, 0); // dönüşü ön teker objelerine yansıtmak için
-        frontRightWheel.localEulerAngles = new Vector3(0, steerInput * 45f, 0);
     }
 }
 
