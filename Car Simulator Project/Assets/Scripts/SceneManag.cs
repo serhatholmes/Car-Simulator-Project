@@ -5,30 +5,20 @@ using UnityEngine.SceneManagement;
 
 public class SceneManag : MonoBehaviour
 {
-   
-    void Start()
-    {
-        
-    }
-
     public void StartGame(){
 
         SceneManager.LoadScene("Gameplay");
     }
-
     public void MainMenu(){
 
         SceneManager.LoadScene("MainMenu");
     }
-
     public void ExitGame(){
         
         Application.Quit();
     }
-
     public void Restart(){
-
+        //load same scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-    
 }

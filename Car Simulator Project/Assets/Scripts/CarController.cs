@@ -7,8 +7,6 @@ using Photon.Pun;
 
 public class CarController : MonoBehaviour
 {
-
-    //PhotonView viewP;
     public bool isMoving = false;
     [SerializeField] float accelPower;
     float startTime, endTime;
@@ -20,29 +18,19 @@ public class CarController : MonoBehaviour
     private Vector3 forwardVelocity;
     [SerializeField] float turnPower;
     [SerializeField] RawImage steeringWheel;
-
     [SerializeField] Transform frontLeftWheel;
     [SerializeField] Transform frontRightWheel;
-
     private float steerInput;
-
     public Rigidbody rb;
-
     public GearTransmission gearTransmission;
-
     [SerializeField] Slider Fuel;
     [SerializeField] TMP_Text fuelPercent;
-
     public bool isGoingBack = false;
-
     PhotonView viewP;
-
-
     private void Start() {
         
         rb = GetComponent<Rigidbody>();
         viewP = GetComponent<PhotonView>();
-
     }
     private void Update() {
 
@@ -57,7 +45,7 @@ public class CarController : MonoBehaviour
 
             if(Fuel.value > 0){
 
-                // eğer yakıt varsa ileri ve geri fonksiyonları aktif oluyor
+                // If there is fuel, forward and reverse functions are active.
 
                     if(gearTransmission.isGoingForward == true){
 
@@ -65,10 +53,9 @@ public class CarController : MonoBehaviour
 
                         if (Input.GetKey(KeyCode.W)){
                         rb.AddForce(transform.forward * accelPower, ForceMode.Force);
-                        Fuel.value -= 0.02f * Time.deltaTime; // yakıt zamana bağlı olarak azalmakta
+                        Fuel.value -= 0.02f * Time.deltaTime; // fuel decreases with time
                         fuelPercent.text = "Fuel: % " + Mathf.RoundToInt((Fuel.value * 100)).ToString();
-                        isGoingBack = false; // geri ışığın yanmaması için
-
+                        isGoingBack = false; // so that the back light turn on
                     }
                 }
 
@@ -82,7 +69,7 @@ public class CarController : MonoBehaviour
                         fuelPercent.text = "Fuel: % " +  Mathf.RoundToInt((Fuel.value * 100)).ToString();
                         isGoingBack = true;
                     }else{
-                        isGoingBack = false; // geri ışığı tuştan elini kaldırınca yanmaması için
+                        isGoingBack = false; // for light turn on when you lift your hand from the button.
                     }
             }
 
@@ -110,10 +97,10 @@ public class CarController : MonoBehaviour
         }
     }
 }
-
     private void OnTriggerEnter(Collider other) {
 
-        // aracın pistte attığı tam türün süresini öğrenmek için
+        /*
+        to find out the duration of the exact type the car threw on the track
 
         if (other.CompareTag("Finish Line")){
             if (!lapStarted){
@@ -127,7 +114,8 @@ public class CarController : MonoBehaviour
                 Debug.Log(lapTime);
             }
         }
-
+        */
+        // full the fuel
         if(other.CompareTag("Gas Station")){
 
             Fuel.value = 1f;

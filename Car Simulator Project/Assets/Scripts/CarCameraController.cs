@@ -9,8 +9,8 @@ public class CarCameraController : MonoBehaviour
 
     private void Start() {
 
-        //3 farklı kamera açısı 1-2-3 tuşları ile değiştirilebiliyor
-        //başlangıçta hepsinin açık olması fps'i düşürüyor
+        //3 different camera angles can be changed with 1-2-3 keys
+        //Having them all on at startup lowers fps
 
         cameras[0].enabled = true;
         cameras[1].enabled = false;
@@ -30,7 +30,7 @@ public class CarCameraController : MonoBehaviour
 
     private void SwapCamera(int index){
 
-        //kamera değişiminde diğer kamera kapanıyor
+        //other camera turns off on camera change
         cameras[camIndex].enabled = false;
         cameras[index].enabled = true;
         camIndex = index;

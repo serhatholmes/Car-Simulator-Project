@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    // dönüşlerdeki performansından dolayı kameraları direkt arabanın içine koyuldu
-
+    // for getting better performans, cameras using without script, add directly to the car
     [SerializeField] Transform targetObj;
     [SerializeField] float followCoeff;
     private Vector3 velocity = Vector3.zero;

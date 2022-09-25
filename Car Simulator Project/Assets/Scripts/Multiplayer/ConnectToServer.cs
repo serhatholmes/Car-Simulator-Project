@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class ConnectToServer : MonoBehaviourPunCallbacks
 {
-    
+    //for creating network, before lobby scene
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();

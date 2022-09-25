@@ -17,13 +17,9 @@ public class CarFeatures : MonoBehaviour
     [SerializeField] Light backLightR;
 
     public bool signallingLeft = false, signallingRight = false;
-
     public bool carMoving = false;
-
     public bool blink = false;
-
     public CarController carController;
-
 
     private void Start() {
 
@@ -39,14 +35,11 @@ public class CarFeatures : MonoBehaviour
 
         backLightL.enabled = false;
         backLightR.enabled = false;
-
-        
+  
         carSound.PlayOneShot(engineStartSound);
     }
-
     private void Update() {
 
-        
         if(Input.GetKeyDown(KeyCode.H)){
 
             carSound.PlayOneShot(hornSound);
@@ -54,8 +47,7 @@ public class CarFeatures : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.L)){
 
-            // farların açılıp kapanması için
-
+            // turn on/off the spot lights
             if(spotLightL.enabled == false && spotLightR.enabled == false){
                 spotLightL.enabled = true;
                 spotLightR.enabled = true;
@@ -73,7 +65,7 @@ public class CarFeatures : MonoBehaviour
             signalLightR.intensity = Mathf.RoundToInt(Mathf.PingPong(Time.time*2f, 1f));
         }
 
-        // geri ışıkları
+        // back lights
         if(carController.isGoingBack){
             backLightL.enabled = true;
             backLightR.enabled = true;
@@ -83,12 +75,11 @@ public class CarFeatures : MonoBehaviour
         }
     }
 
-    // sinyal ışıkları
+    // signal lights
     public void signalLeft(){
         signallingLeft = !signallingLeft;
         signalLightL.intensity = 0;
     }
-
     public void signalRight(){
         signallingRight = !signallingRight;
         signalLightR.intensity = 0;
